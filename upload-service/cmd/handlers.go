@@ -21,8 +21,8 @@ import (
 )
 
 const (
-	accessKey  = "215c3c1135fb758f1562d53cd8b332e7"
-	secretKey  = "77f268589d6121d7fe43fb21171385382d1d0049caa92436d5fad227abbbfd84"
+	accessKey  = "4d7611f748dbe2573bdc94bac4efb5cc"
+	secretKey  = "39756a642e3fd8ff119efeaffd7fd0d0f8afbd73af4f16b70fba1fcea4283ad2"
 	region     = "wnam" // specify your region
 	endpoint   = "https://250397b01822ad832478cabd941e8740.r2.cloudflarestorage.com"
 	bucketName = "vercel-clone"
