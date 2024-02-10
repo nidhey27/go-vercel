@@ -16,6 +16,7 @@ require (
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/robinjoseph08/redisqueue v1.1.0 // indirect
+	github.com/rs/xid v1.5.0
 	github.com/tsuyoshiwada/go-gitcmd v0.0.0-20180205145712-5f1f5f9475df // indirect
 	github.com/urfave/cli v1.20.0 // indirect
 	golang.org/x/sys v0.0.0-20190222072716-a9d3bda3a223 // indirect

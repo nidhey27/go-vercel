@@ -19,8 +19,8 @@ import (
 )
 
 const (
-	accessKey  = "4d7611f748dbe2573bdc94bac4efb5cc"
-	secretKey  = "39756a642e3fd8ff119efeaffd7fd0d0f8afbd73af4f16b70fba1fcea4283ad2"
+	accessKey  = "9244ff252a3d4d8975c52c07e6a3653b"
+	secretKey  = "a2c0cd7a40efc6360689357a4346be92313f004107bf3548bf283f65e8987061"
 	region     = "wnam" // specify your region
 	endpoint   = "https://250397b01822ad832478cabd941e8740.r2.cloudflarestorage.com"
 	bucketName = "vercel-clone"
@@ -80,7 +80,7 @@ func main() {
 
 		object, err := svc.GetObjectWithContext(ctx, &s3.GetObjectInput{
 			Bucket: aws.String(bucketName),
-			Key:    aws.String(fmt.Sprintf("%v/%v", projectID, requestPath)),
+			Key:    aws.String(fmt.Sprintf("%v/dist/%v", projectID, requestPath)),
 		})
 
 		if err != nil {

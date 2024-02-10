@@ -17,20 +17,36 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-git/go-git/v5"
 
-	"github.com/robinjoseph08/redisqueue"
+	"github.com/go-redis/redis"
 )
 
 const (
-	accessKey  = "4d7611f748dbe2573bdc94bac4efb5cc"
-	secretKey  = "39756a642e3fd8ff119efeaffd7fd0d0f8afbd73af4f16b70fba1fcea4283ad2"
+	accessKey  = "9244ff252a3d4d8975c52c07e6a3653b"
+	secretKey  = "a2c0cd7a40efc6360689357a4346be92313f004107bf3548bf283f65e8987061"
 	region     = "wnam" // specify your region
 	endpoint   = "https://250397b01822ad832478cabd941e8740.r2.cloudflarestorage.com"
 	bucketName = "vercel-clone"
 	timeout    = 10 * time.Minute
+	streamName = "redisqueue:vercel-projects"
 )
 
 type Request struct {
 	ProjectURL string `json:"project_url"`
+}
+
+var redisClient *redis.Client
+
+func init() {
+	redisClient = redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf("%s:%s", "127.0.0.1", "6379"),
+	})
+
+	_, err := redisClient.Ping().Result()
+	if err != nil {
+		log.Fatal("Error connecting to Redis", err)
+	}
+
+	log.Println("Connected to Redis server")
 }
 
 func Deploy(c *gin.Context) {
@@ -143,26 +159,39 @@ func Deploy(c *gin.Context) {
 		}
 	}
 
-	p, err := redisqueue.NewProducerWithOptions(&redisqueue.ProducerOptions{
-		StreamMaxLength:      10,
-		ApproximateMaxLength: true,
-	})
-	if err != nil {
-		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   err.Error(),
-			"message": "",
-			"data":    make([]interface{}, 0),
-		})
-		return
-	}
+	// p, err := redisqueue.NewProducerWithOptions(&redisqueue.ProducerOptions{
+	// 	StreamMaxLength:      10,
+	// 	ApproximateMaxLength: true,
+	// })
+	// if err != nil {
+	// 	log.Println(err)
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"error":   err.Error(),
+	// 		"message": "",
+	// 		"data":    make([]interface{}, 0),
+	// 	})
+	// 	return
+	// }
 
-	err = p.Enqueue(&redisqueue.Message{
-		Stream: "redisqueue:vercel-projects",
+	// err = p.Enqueue(&redisqueue.Message{
+	// 	Stream: "redisqueue:vercel-projects",
+	// 	Values: map[string]interface{}{
+	// 		"id": projectId,
+	// 	},
+	// })
+
+	err = redisClient.XAdd(&redis.XAddArgs{
+		Stream:       streamName,
+		MaxLen:       0,
+		MaxLenApprox: 0,
+		ID:           "",
 		Values: map[string]interface{}{
-			"id": projectId,
+			"id":     projectId,
+			"status": "uploaded",
 		},
-	})
+	}).Err()
+
+	redisClient.HSet("status", projectId, "uploaded")
 
 	if err != nil {
 		log.Println(err)
@@ -180,4 +209,16 @@ func Deploy(c *gin.Context) {
 		"data":    projectId,
 	})
 
+}
+
+func Status(c *gin.Context) {
+	// Extract project ID from query parameters
+	projectId := c.Query("id")
+
+	status, _ := redisClient.HGet("status", projectId).Result()
+
+	c.JSON(http.StatusOK, gin.H{
+		"id":     projectId,
+		"status": status,
+	})
 }

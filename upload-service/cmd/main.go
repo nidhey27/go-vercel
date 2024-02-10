@@ -14,14 +14,11 @@ func main() {
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH"},
-		AllowHeaders:     []string{"Origin"},
+		AllowMethods:     []string{"*"},
+		AllowHeaders:     []string{"*"},
 		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		AllowOriginFunc: func(origin string) bool {
-			return origin == "https://github.com"
-		},
-		MaxAge: 12 * time.Hour,
+		AllowCredentials: false,
+		MaxAge:           12 * time.Hour,
 	}))
 
 	router.GET("/ping", func(c *gin.Context) {
@@ -31,6 +28,7 @@ func main() {
 	})
 
 	router.POST("/deploy", Deploy)
+	router.GET("/status", Status)
 
 	err := router.Run(":3000")
 	if err != nil {
